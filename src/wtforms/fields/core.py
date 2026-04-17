@@ -133,6 +133,22 @@ class Field:
             for k, v in flags.items():
                 setattr(self.flags, k, v)
 
+    @classmethod
+    def check_validators(cls, validators):
+        if validators is not None:
+            for validator in validators:
+                if not callable(validator):
+                    raise TypeError(
+                        f"{validator} is not a valid validator because it is not "
+                        "callable"
+                    )
+
+                if inspect.isclass(validator):
+                    raise TypeError(
+                        f"{validator} is not a valid validator because it is a class, "
+                        "it should be an instance"
+                    )
+
     def __str__(self):
         """
         Returns a HTML representation of the field. For more powerful rendering,
@@ -162,7 +178,6 @@ class Field:
         even do anything related to HTML.
         """
         return self.meta.render_field(self, kwargs)
-
 
     def gettext(self, string):
         """
@@ -292,7 +307,6 @@ class UnboundField:
         validators = kwargs.get("validators")
         if validators:
             self.field_class.check_validators(validators)
-
 
     def __repr__(self):
         return (
