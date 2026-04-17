@@ -460,29 +460,7 @@ class IPAddress:
             message = field.gettext("Invalid IP address.")
         raise ValidationError(message)
 
-    @classmethod
-    def check_ipv4(cls, value):
-        try:
-            address = ipaddress.ip_address(value)
-        except ValueError:
-            return False
 
-        if not isinstance(address, ipaddress.IPv4Address):
-            return False
-
-        return True
-
-    @classmethod
-    def check_ipv6(cls, value):
-        try:
-            address = ipaddress.ip_address(value)
-        except ValueError:
-            return False
-
-        if not isinstance(address, ipaddress.IPv6Address):
-            return False
-
-        return True
 
 
 class MacAddress(Regexp):
@@ -596,9 +574,6 @@ class AnyOf:
 
         raise ValidationError(message % dict(values=self.values_formatter(self.values)))
 
-    @staticmethod
-    def default_values_formatter(values):
-        return ", ".join(str(x) for x in values)
 
 
 class NoneOf:
@@ -632,9 +607,6 @@ class NoneOf:
 
         raise ValidationError(message % dict(values=self.values_formatter(self.values)))
 
-    @staticmethod
-    def default_values_formatter(v):
-        return ", ".join(str(x) for x in v)
 
 
 class HostnameValidation:

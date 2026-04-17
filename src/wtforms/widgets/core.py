@@ -376,16 +376,6 @@ class Select:
         html.append("</select>")
         return Markup("".join(html))
 
-    @classmethod
-    def render_option(cls, value, label, selected, **kwargs):
-        if value is True:
-            # Handle the special case of a 'True' value.
-            value = str(value)
-
-        options = dict(kwargs, value=value)
-        if selected:
-            options["selected"] = True
-        return Markup(f"<option {html_params(**options)}>{escape(label)}</option>")
 
 
 class Option:

@@ -38,19 +38,8 @@ class BooleanField(Field):
         if false_values is not None:
             self.false_values = false_values
 
-    def process_data(self, value):
-        self.data = bool(value)
 
-    def process_formdata(self, valuelist):
-        if not valuelist or valuelist[0] in self.false_values:
-            self.data = False
-        else:
-            self.data = True
 
-    def _value(self):
-        if self.raw_data:
-            return str(self.raw_data[0])
-        return "y"
 
 
 class StringField(Field):
@@ -61,12 +50,7 @@ class StringField(Field):
 
     widget = widgets.TextInput()
 
-    def process_formdata(self, valuelist):
-        if valuelist:
-            self.data = valuelist[0]
 
-    def _value(self):
-        return str(self.data) if self.data is not None else ""
 
 
 class TextAreaField(StringField):
@@ -100,9 +84,6 @@ class FileField(Field):
 
     widget = widgets.FileInput()
 
-    def _value(self):
-        # browser ignores value of file input for security
-        return False
 
 
 class MultipleFileField(FileField):
@@ -110,8 +91,6 @@ class MultipleFileField(FileField):
 
     widget = widgets.FileInput(multiple=True)
 
-    def process_formdata(self, valuelist):
-        self.data = valuelist
 
 
 class HiddenField(StringField):

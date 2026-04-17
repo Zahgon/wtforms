@@ -25,7 +25,7 @@ class CSRFTokenField(HiddenField):
         We want to always return the current token on render, regardless of
         whether a good or bad token was passed.
         """
-        return self.current_token
+        pass
 
     def populate_obj(self, *args):
         """
@@ -37,11 +37,8 @@ class CSRFTokenField(HiddenField):
         """
         Handle validation of this token field.
         """
-        self.csrf_impl.validate_csrf_token(form, self)
+        pass
 
-    def process(self, *args, **kwargs):
-        super().process(*args, **kwargs)
-        self.current_token = self.csrf_impl.generate_csrf_token(self)
 
 
 class CSRF:
@@ -61,10 +58,7 @@ class CSRF:
             A sequence of `(field_name, unbound_field)` 2-tuples which
             are unbound fields to be added to the form.
         """
-        meta = form.meta
-        field_name = meta.csrf_field_name
-        unbound_field = self.field_class(label="CSRF Token", csrf_impl=self)
-        return [(field_name, unbound_field)]
+        pass
 
     def generate_csrf_token(self, csrf_token_field):
         """
@@ -92,5 +86,4 @@ class CSRF:
         :param form: The form which has this CSRF token.
         :param field: The CSRF token field.
         """
-        if field.current_token != field.data:
-            raise ValidationError(field.gettext("Invalid CSRF Token."))
+        pass

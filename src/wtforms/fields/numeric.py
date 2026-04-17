@@ -35,21 +35,8 @@ class LocaleAwareNumberField(Field):
             self.locale = kwargs["_form"].meta.locales[0]
             self._init_babel()
 
-    def _init_babel(self):
-        try:
-            from babel import numbers
 
-            self.babel_numbers = numbers
-        except ImportError as exc:
-            raise ImportError(
-                "Using locale-aware decimals requires the babel library."
-            ) from exc
 
-    def _parse_decimal(self, value):
-        return self.babel_numbers.parse_decimal(value, self.locale)
-
-    def _format_decimal(self, value):
-        return self.babel_numbers.format_decimal(value, self.number_format, self.locale)
 
 
 class IntegerField(Field):
@@ -63,33 +50,8 @@ class IntegerField(Field):
     def __init__(self, label=None, validators=None, **kwargs):
         super().__init__(label, validators, **kwargs)
 
-    def _value(self):
-        if self.raw_data:
-            return self.raw_data[0]
-        if self.data is not None:
-            return str(self.data)
-        return ""
 
-    def process_data(self, value):
-        if value is None or value is unset_value:
-            self.data = None
-            return
 
-        try:
-            self.data = int(value)
-        except (ValueError, TypeError) as exc:
-            self.data = None
-            raise ValueError(self.gettext("Not a valid integer value.")) from exc
-
-    def process_formdata(self, valuelist):
-        if not valuelist:
-            return
-
-        try:
-            self.data = int(valuelist[0])
-        except ValueError as exc:
-            self.data = None
-            raise ValueError(self.gettext("Not a valid integer value.")) from exc
 
 
 class DecimalField(LocaleAwareNumberField):
@@ -128,44 +90,7 @@ class DecimalField(LocaleAwareNumberField):
         self.places = places
         self.rounding = rounding
 
-    def _value(self):
-        if self.raw_data:
-            return self.raw_data[0]
 
-        if self.data is None:
-            return ""
-
-        if self.use_locale:
-            return str(self._format_decimal(self.data))
-
-        if self.places is None:
-            return str(self.data)
-
-        if not hasattr(self.data, "quantize"):
-            # If for some reason, data is a float or int, then format
-            # as we would for floats using string formatting.
-            format = "%%0.%df" % self.places
-            return format % self.data
-
-        exp = decimal.Decimal(".1") ** self.places
-        if self.rounding is None:
-            quantized = self.data.quantize(exp)
-        else:
-            quantized = self.data.quantize(exp, rounding=self.rounding)
-        return str(quantized)
-
-    def process_formdata(self, valuelist):
-        if not valuelist:
-            return
-
-        try:
-            if self.use_locale:
-                self.data = self._parse_decimal(valuelist[0])
-            else:
-                self.data = decimal.Decimal(valuelist[0])
-        except (decimal.InvalidOperation, ValueError) as exc:
-            self.data = None
-            raise ValueError(self.gettext("Not a valid decimal value.")) from exc
 
 
 class FloatField(Field):
@@ -179,22 +104,7 @@ class FloatField(Field):
     def __init__(self, label=None, validators=None, **kwargs):
         super().__init__(label, validators, **kwargs)
 
-    def _value(self):
-        if self.raw_data:
-            return self.raw_data[0]
-        if self.data is not None:
-            return str(self.data)
-        return ""
 
-    def process_formdata(self, valuelist):
-        if not valuelist:
-            return
-
-        try:
-            self.data = float(valuelist[0])
-        except ValueError as exc:
-            self.data = None
-            raise ValueError(self.gettext("Not a valid float value.")) from exc
 
 
 class IntegerRangeField(IntegerField):

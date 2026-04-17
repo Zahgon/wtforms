@@ -79,8 +79,7 @@ class BaseForm:
         :note: This is a destructive operation; Any attribute with the same name
                as a field will be overridden. Use with caution.
         """
-        for name, field in self._fields.items():
-            field.populate_obj(obj, name)
+        pass
 
     def process(self, formdata=None, obj=None, data=None, extra_filters=None, **kwargs):
         """Process default and input data with each field.
@@ -104,28 +103,7 @@ class BaseForm:
             data as parameters. Overwrites any duplicate keys in
             ``data``. Only used if ``formdata`` is not passed.
         """
-        formdata = self.meta.wrap_formdata(self, formdata)
-
-        if data is not None:
-            kwargs = dict(data, **kwargs)
-
-        filters = extra_filters.copy() if extra_filters is not None else {}
-
-        for name, field in self._fields.items():
-            field_extra_filters = filters.get(name, [])
-
-            inline_filter = getattr(self, f"filter_{name}", None)
-            if inline_filter is not None:
-                field_extra_filters.append(inline_filter)
-
-            if obj is not None and hasattr(obj, name):
-                data = getattr(obj, name)
-            elif name in kwargs:
-                data = kwargs[name]
-            else:
-                data = unset_value
-
-            field.process(formdata, data, extra_filters=field_extra_filters)
+        pass
 
     def validate(self, extra_validators=None):
         """
@@ -138,26 +116,9 @@ class BaseForm:
 
         Returns `True` if no errors occur.
         """
-        success = True
-        for name, field in self._fields.items():
-            if extra_validators is not None and name in extra_validators:
-                extra = extra_validators[name]
-            else:
-                extra = tuple()
-            if not field.validate(self, extra):
-                success = False
-        return success
+        pass
 
-    @property
-    def data(self):
-        return {name: f.data for name, f in self._fields.items()}
 
-    @property
-    def errors(self):
-        errors = {name: f.errors for name, f in self._fields.items() if f.errors}
-        if self.form_errors:
-            errors[self._form_error_key] = self.form_errors
-        return errors
 
 
 class FormMeta(type):
@@ -317,14 +278,4 @@ class Form(BaseForm, metaclass=FormMeta):
             validators passed when creating the field. If the form has
             ``validate_<fieldname>``, it is the last extra validator.
         """
-        if extra_validators is not None:
-            extra = extra_validators.copy()
-        else:
-            extra = {}
-
-        for name in self._fields:
-            inline = getattr(self.__class__, f"validate_{name}", None)
-            if inline is not None:
-                extra.setdefault(name, []).append(inline)
-
-        return super().validate(extra)
+        pass

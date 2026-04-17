@@ -5,11 +5,7 @@ def messages_path():
     """
     Determine the path to the 'messages' directory as best possible.
     """
-    module_path = os.path.abspath(__file__)
-    locale_path = os.path.join(os.path.dirname(module_path), "locale")
-    if not os.path.exists(locale_path):  # pragma: no cover
-        locale_path = "/usr/share/locale"
-    return locale_path
+    pass
 
 
 def get_builtin_gnu_translations(languages=None):
@@ -21,9 +17,7 @@ def get_builtin_gnu_translations(languages=None):
         A list of languages to try, in order. If omitted or None, then
         gettext will try to use locale information from the environment.
     """
-    import gettext
-
-    return gettext.translation("wtforms", messages_path(), languages)
+    pass
 
 
 def get_translations(languages=None, getter=get_builtin_gnu_translations):
@@ -47,11 +41,7 @@ class DefaultTranslations:
     def __init__(self, translations):
         self.translations = translations
 
-    def gettext(self, string):
-        return self.translations.ugettext(string)
 
-    def ngettext(self, singular, plural, n):
-        return self.translations.ungettext(singular, plural, n)
 
 
 class DummyTranslations:
@@ -62,11 +52,4 @@ class DummyTranslations:
     translations provider can be found.
     """
 
-    def gettext(self, string):
-        return string
 
-    def ngettext(self, singular, plural, n):
-        if n == 1:
-            return singular
-
-        return plural

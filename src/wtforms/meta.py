@@ -25,7 +25,7 @@ class DefaultMeta:
 
         :return: A bound field
         """
-        return unbound_field.bind(form=form, **options)
+        pass
 
     def wrap_formdata(self, form, formdata):
         """
@@ -38,15 +38,7 @@ class DefaultMeta:
         :param formdata: Form data.
         :return: A form-input wrapper compatible with WTForms.
         """
-        if formdata is not None and not hasattr(formdata, "getlist"):
-            if hasattr(formdata, "getall"):
-                return WebobInputWrapper(formdata)
-            else:
-                raise TypeError(
-                    "formdata should be a multidict-type wrapper that"
-                    " supports the 'getlist' method"
-                )
-        return formdata
+        pass
 
     def render_field(self, field, render_kw):
         """
@@ -54,14 +46,7 @@ class DefaultMeta:
 
         The default implementation calls ``field.widget(field, **render_kw)``
         """
-
-        render_kw = {clean_key(k): v for k, v in render_kw.items()}
-
-        other_kw = getattr(field, "render_kw", None)
-        if other_kw is not None:
-            other_kw = {clean_key(k): v for k, v in other_kw.items()}
-            render_kw = dict(other_kw, **render_kw)
-        return field.widget(field, **render_kw)
+        pass
 
     # -- CSRF
 
@@ -83,12 +68,7 @@ class DefaultMeta:
         :param form: The form.
         :return: A CSRF implementation.
         """
-        if self.csrf_class is not None:
-            return self.csrf_class()
-
-        from wtforms.csrf.session import SessionCSRF
-
-        return SessionCSRF()
+        pass
 
     # -- i18n
 
@@ -128,5 +108,4 @@ class DefaultMeta:
         """
         Given a dictionary of values, update values on this `Meta` instance.
         """
-        for key, value in values.items():
-            setattr(self, key, value)
+        pass

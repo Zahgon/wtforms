@@ -34,8 +34,6 @@ class SelectFieldBase(Field):
         """
         raise NotImplementedError()
 
-    def has_groups(self):
-        return False
 
     def iter_groups(self):
         raise NotImplementedError()
@@ -66,8 +64,6 @@ class SelectFieldBase(Field):
     class _Option(Field):
         checked = False
 
-        def _value(self):
-            return str(self.data)
 
 
 class SelectField(SelectFieldBase):
@@ -92,67 +88,12 @@ class SelectField(SelectFieldBase):
             self.choices = None
         self.validate_choice = validate_choice
 
-    def iter_choices(self):
-        if not self.choices:
-            choices = []
-        elif isinstance(self.choices, dict):
-            choices = list(itertools.chain.from_iterable(self.choices.values()))
-        else:
-            choices = self.choices
 
-        return self._choices_generator(choices)
 
-    def has_groups(self):
-        return isinstance(self.choices, dict)
 
-    def iter_groups(self):
-        if isinstance(self.choices, dict):
-            for label, choices in self.choices.items():
-                yield (label, self._choices_generator(choices))
 
-    def _choices_generator(self, choices):
-        if not choices:
-            _choices = []
 
-        elif isinstance(choices[0], list | tuple):
-            _choices = choices
 
-        else:
-            _choices = zip(choices, choices, strict=False)
-
-        for value, label, *other_args in _choices:
-            selected = self.coerce(value) == self.data
-            render_kw = other_args[0] if len(other_args) else {}
-            yield (value, label, selected, render_kw)
-
-    def process_data(self, value):
-        try:
-            # If value is None, don't coerce to a value
-            self.data = self.coerce(value) if value is not None else None
-        except (ValueError, TypeError):
-            self.data = None
-
-    def process_formdata(self, valuelist):
-        if not valuelist:
-            return
-
-        try:
-            self.data = self.coerce(valuelist[0])
-        except ValueError as exc:
-            raise ValueError(self.gettext("Invalid Choice: could not coerce.")) from exc
-
-    def pre_validate(self, form):
-        if not self.validate_choice:
-            return
-
-        if self.choices is None:
-            raise TypeError(self.gettext("Choices cannot be None."))
-
-        for _, _, match, *_ in self.iter_choices():
-            if match:
-                break
-        else:
-            raise ValidationError(self.gettext("Not a valid choice."))
 
 
 class SelectMultipleField(SelectField):
@@ -164,57 +105,9 @@ class SelectMultipleField(SelectField):
 
     widget = widgets.Select(multiple=True)
 
-    def _choices_generator(self, choices):
-        if not choices:
-            _choices = []
 
-        elif isinstance(choices[0], list | tuple):
-            _choices = choices
 
-        else:
-            _choices = zip(choices, choices, strict=False)
 
-        for value, label, *other_args in _choices:
-            selected = self.data is not None and self.coerce(value) in self.data
-            render_kw = other_args[0] if len(other_args) else {}
-            yield (value, label, selected, render_kw)
-
-    def process_data(self, value):
-        try:
-            self.data = list(self.coerce(v) for v in value)
-        except (ValueError, TypeError):
-            self.data = None
-
-    def process_formdata(self, valuelist):
-        try:
-            self.data = list(self.coerce(x) for x in valuelist)
-        except ValueError as exc:
-            raise ValueError(
-                self.gettext(
-                    "Invalid choice(s): one or more data inputs could not be coerced."
-                )
-            ) from exc
-
-    def pre_validate(self, form):
-        if not self.validate_choice or not self.data:
-            return
-
-        if self.choices is None:
-            raise TypeError(self.gettext("Choices cannot be None."))
-
-        acceptable = [self.coerce(choice[0]) for choice in self.iter_choices()]
-        if any(data not in acceptable for data in self.data):
-            unacceptable = [
-                str(data) for data in set(self.data) if data not in acceptable
-            ]
-            raise ValidationError(
-                self.ngettext(
-                    "'%(value)s' is not a valid choice for this field.",
-                    "'%(value)s' are not valid choices for this field.",
-                    len(unacceptable),
-                )
-                % dict(value="', '".join(unacceptable))
-            )
 
 
 class RadioField(SelectField):

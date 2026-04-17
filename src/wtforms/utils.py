@@ -87,5 +87,3 @@ class WebobInputWrapper:
     def __contains__(self, name):
         return name in self._wrapped
 
-    def getlist(self, name):
-        return self._wrapped.getall(name)

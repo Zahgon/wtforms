@@ -163,21 +163,6 @@ class Field:
         """
         return self.meta.render_field(self, kwargs)
 
-    @classmethod
-    def check_validators(cls, validators):
-        if validators is not None:
-            for validator in validators:
-                if not callable(validator):
-                    raise TypeError(
-                        f"{validator} is not a valid validator because it is not "
-                        "callable"
-                    )
-
-                if inspect.isclass(validator):
-                    raise TypeError(
-                        f"{validator} is not a valid validator because it is a class, "
-                        "it should be an instance"
-                    )
 
     def gettext(self, string):
         """
@@ -188,7 +173,7 @@ class Field:
         :param string: A string to be translated.
         :return: A string which is the translated output.
         """
-        return self._translations.gettext(string)
+        pass
 
     def ngettext(self, singular, plural, n):
         """
@@ -198,7 +183,7 @@ class Field:
         :param str plural: The plural form of the message.
         :param int n: The number of elements this message is referring to
         """
-        return self._translations.ngettext(singular, plural, n)
+        pass
 
     def validate(self, form, extra_validators=()):
         """
@@ -212,34 +197,7 @@ class Field:
         :param form: The form the field belongs to.
         :param extra_validators: A sequence of extra validators to run.
         """
-        self.errors = list(self.process_errors)
-        stop_validation = False
-
-        # Check the type of extra_validators
-        self.check_validators(extra_validators)
-
-        # Call pre_validate
-        try:
-            self.pre_validate(form)
-        except StopValidation as e:
-            if e.args and e.args[0]:
-                self.errors.append(e.args[0])
-            stop_validation = True
-        except ValidationError as e:
-            self.errors.append(e.args[0])
-
-        # Run validators
-        if not stop_validation:
-            chain = itertools.chain(self.validators, extra_validators)
-            stop_validation = self._run_validation_chain(form, chain)
-
-        # Call post_validate
-        try:
-            self.post_validate(form, stop_validation)
-        except ValidationError as e:
-            self.errors.append(e.args[0])
-
-        return len(self.errors) == 0
+        pass
 
     def _run_validation_chain(self, form, validators):
         """
@@ -249,17 +207,7 @@ class Field:
         :param validators: a sequence or iterable of validator callables.
         :return: True if validation was stopped, False otherwise.
         """
-        for validator in validators:
-            try:
-                validator(form, self)
-            except StopValidation as e:
-                if e.args and e.args[0]:
-                    self.errors.append(e.args[0])
-                return True
-            except ValidationError as e:
-                self.errors.append(e.args[0])
-
-        return False
+        pass
 
     def pre_validate(self, form):
         """
@@ -296,36 +244,7 @@ class Field:
 
         :param extra_filters: A sequence of extra filters to run.
         """
-        self.process_errors = []
-        if data is unset_value:
-            try:
-                data = self.default()
-            except TypeError:
-                data = self.default
-
-        self.object_data = data
-
-        try:
-            self.process_data(data)
-        except ValueError as e:
-            self.process_errors.append(e.args[0])
-
-        if formdata is not None:
-            if self.name in formdata:
-                self.raw_data = formdata.getlist(self.name)
-            else:
-                self.raw_data = []
-
-            try:
-                self.process_formdata(self.raw_data)
-            except ValueError as e:
-                self.process_errors.append(e.args[0])
-
-        try:
-            for filter in itertools.chain(self.filters, extra_filters or []):
-                self.data = filter(self.data)
-        except ValueError as e:
-            self.process_errors.append(e.args[0])
+        pass
 
     def process_data(self, value):
         """
@@ -336,7 +255,7 @@ class Field:
 
         :param value: The python object containing the value to process.
         """
-        self.data = value
+        pass
 
     def process_formdata(self, valuelist):
         """
@@ -347,8 +266,7 @@ class Field:
 
         :param valuelist: A list of strings to process.
         """
-        if valuelist:
-            self.data = valuelist[0]
+        pass
 
     def populate_obj(self, obj, name):
         """
@@ -357,7 +275,7 @@ class Field:
         :note: This is a destructive operation. If `obj.<name>` already exists,
                it will be overridden. Use with caution.
         """
-        setattr(obj, name, self.data)
+        pass
 
 
 class UnboundField:
@@ -375,16 +293,6 @@ class UnboundField:
         if validators:
             self.field_class.check_validators(validators)
 
-    def bind(self, form, name, prefix="", translations=None, **kwargs):
-        kw = dict(
-            self.kwargs,
-            name=name,
-            _form=form,
-            _prefix=prefix,
-            _translations=translations,
-            **kwargs,
-        )
-        return self.field_class(*self.args, **kw)
 
     def __repr__(self):
         return (
